@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+
 function App() {
 
     const [name, setName] = useState('');
@@ -23,7 +24,7 @@ function App() {
     const addContact = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("/api/v1/contact", { name: name, mobile: number });
+            const res = await axios.post("https://address-book-manager.onrender.com/api/v1/contact", { name: name, mobile: number})
             setListContact(prevList => [...prevList, res.data]);
             setName('');
             setNumber('');
@@ -88,7 +89,7 @@ function App() {
     const updateContact = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.patch(`https://address-book-manager.onrender.com/api/v1/contact/${updateIdText}`, { name: updateNameText, mobile: updateContactText });
+            const res = await axios.patch(`https://address-book-manager.onrender.com/api/v1/contact/${updateIdText}`, { name: updateNameText, mobile: updateContactText});
             const updatedContact = res.data;
             const updatedList = listContact.map(contact => {
                 if (contact._id === updatedContact._id) {
