@@ -37,7 +37,7 @@ function App() {
     const handleSearch = async (e) => {
 
         try {
-            const res = await axios.get(`/api/v1/contact?filter=${searchQuery}`);
+            const res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
             setListContact(res.data);
         } catch (err) {
             console.log(err);
@@ -53,9 +53,9 @@ function App() {
             try {
                 let res;
                 if (searchQuery) {
-                    res = await axios.get(`/api/v1/contact?filter=${searchQuery}`);
+                    res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
                 } else {
-                    res = await axios.get(`/api/v1/contact`);
+                    res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact`);
                 }
                 setListContact(res.data);
             } catch (err) {
@@ -68,7 +68,7 @@ function App() {
 
     const deletContact = async (id) => {
         try {
-            const res = await axios.delete(`/api/v1/contact/${id}`)
+            const res = await axios.delete(`https://address-book-manager.onrender.com/api/v1/contact/${id}`)
             const newListContact = listContact.filter(curlelm => curlelm._id !== id)
             setListContact(newListContact);
 
@@ -88,7 +88,7 @@ function App() {
     const updateContact = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.patch(`/api/v1/contact/${updateIdText}`, { name: updateNameText, mobile: updateContactText });
+            const res = await axios.patch(`https://address-book-manager.onrender.com/api/v1/contact/${updateIdText}`, { name: updateNameText, mobile: updateContactText });
             const updatedContact = res.data;
             const updatedList = listContact.map(contact => {
                 if (contact._id === updatedContact._id) {
