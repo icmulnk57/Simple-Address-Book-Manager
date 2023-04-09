@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev":"node backend/server.js",
-    "build":"npm i"
-    
+    "dev": "node backend/server.js",
+    "build": "npm i"
   },
   "keywords": [],
   "author": "Aman mandal",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "mongoose": "^7.0.3",
