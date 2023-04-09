@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start":"node backend/server.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+    "dev":"node backend/server.js",
+    "build":"npm i"
+    
   },
   "keywords": [],
   "author": "Aman mandal",
