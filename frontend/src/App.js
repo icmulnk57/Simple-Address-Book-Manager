@@ -3,7 +3,6 @@ import { useState, useEffect,useMemo } from 'react'
 import axios from 'axios'
 import Loader from './Loader';
 
-
 function App() {
 
     const [name, setName] = useState('');
@@ -32,29 +31,23 @@ function App() {
       };
     
       const handleSearch = async (e) => {
+        // e.preventDefault();
         try {
-          setIsLoading(true); // Start loading
-      
           const res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
-          
           setListContact(res.data);
         } catch (err) {
           console.log(err);
-        } finally {
-          setIsLoading(false); // Stop loading
         }
       };
-      
-      
+    
       useEffect(() => {
-        // You can pass an empty object as a placeholder event if needed.
-        // Or you can modify handleSearch to not rely on the event object.
-        handleSearch({});
+        handleSearch();
       }, [searchQuery]);
-      
     
       const getAllContact = async () => {
         try {
+          setIsLoading(true); // Start loading
+      
           let res;
           if (searchQuery) {
             res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
@@ -64,12 +57,15 @@ function App() {
           setListContact(res.data);
         } catch (err) {
           console.log(err);
+        } finally {
+          setIsLoading(false); // Stop loading
         }
       };
-    
+      
       useEffect(() => {
         getAllContact();
       }, []);
+      
     
       const deletContact = async (id) => {
         try {
