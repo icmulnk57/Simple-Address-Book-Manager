@@ -1,6 +1,8 @@
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect,useMemo } from 'react'
 import axios from 'axios'
+import Loader from './Loader';
+
 
 function App() {
 
@@ -11,12 +13,8 @@ function App() {
     const [updateContactText, setUpdateContactText] = useState('');
     const [updateIdText, setUpdateIdText] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-
-    let i = 1;
-
-
-    // console.log({updateContactText,updateNameText}) --> just checking data 
 
 
 
@@ -24,85 +22,98 @@ function App() {
     const addContact = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("https://address-book-manager.onrender.com/api/v1/contact", { name: name, mobile: number})
-            setListContact(prevList => [...prevList, res.data]);
-            setName('');
-            setNumber('');
-
+          const res = await axios.post("https://address-book-manager.onrender.com/api/v1/contact", { name, mobile: number });
+          setListContact(prevList => [...prevList, res.data]);
+          setName('');
+          setNumber('');
         } catch (err) {
-            console.log(err)
-
+          console.log(err);
         }
-
-    }
-    const handleSearch = async (e) => {
-
+      };
+    
+      const handleSearch = async (e) => {
         try {
-            const res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
-            setListContact(res.data);
+          setIsLoading(true); // Start loading
+      
+          const res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
+          
+          setListContact(res.data);
         } catch (err) {
-            console.log(err);
+          console.log(err);
+        } finally {
+          setIsLoading(false); // Stop loading
         }
-    };
-    useEffect(() => {
-        handleSearch();
-    }, [searchQuery]);
-
-
-    useEffect(() => {
-        const getAllContact = async () => {
-            try {
-                let res;
-                if (searchQuery) {
-                    res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
-                } else {
-                    res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact`);
-                }
-                setListContact(res.data);
-            } catch (err) {
-                console.log(err);
-            }
-        };
-
+      };
+      
+      
+      useEffect(() => {
+        // You can pass an empty object as a placeholder event if needed.
+        // Or you can modify handleSearch to not rely on the event object.
+        handleSearch({});
+      }, [searchQuery]);
+      
+    
+      const getAllContact = async () => {
+        try {
+          let res;
+          if (searchQuery) {
+            res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact?filter=${searchQuery}`);
+          } else {
+            res = await axios.get(`https://address-book-manager.onrender.com/api/v1/contact`);
+          }
+          setListContact(res.data);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+    
+      useEffect(() => {
         getAllContact();
-    }, []);
-
-    const deletContact = async (id) => {
+      }, []);
+    
+      const deletContact = async (id) => {
         try {
-            const res = await axios.delete(`https://address-book-manager.onrender.com/api/v1/contact/${id}`)
-            const newListContact = listContact.filter(curlelm => curlelm._id !== id)
-            setListContact(newListContact);
-
+          await axios.delete(`https://address-book-manager.onrender.com/api/v1/contact/${id}`);
+          const newListContact = listContact.filter(curlelm => curlelm._id !== id);
+          setListContact(newListContact);
         } catch (err) {
-            console.log(err)
+          console.log(err);
         }
-    }
-
-
-    const editContact = (id) => {
+      };
+    
+      const editContact = (id) => {
         const contactToEdit = listContact.find((curlelm) => curlelm._id === id);
-        setUpdateIdText(contactToEdit._id)
+        setUpdateIdText(contactToEdit._id);
         setUpdateNameText(contactToEdit.name);
         setUpdateContactText(contactToEdit.mobile);
-
-    };
-    const updateContact = async (e) => {
+      };
+    
+      const updateContact = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.patch(`https://address-book-manager.onrender.com/api/v1/contact/${updateIdText}`, { name: updateNameText, mobile: updateContactText});
-            const updatedContact = res.data;
-            const updatedList = listContact.map(contact => {
-                if (contact._id === updatedContact._id) {
-                    return updatedContact;
-                }
-                return contact;
-            });
-            setListContact(updatedList);
+          const res = await axios.patch(`https://address-book-manager.onrender.com/api/v1/contact/${updateIdText}`, { name: updateNameText, mobile: updateContactText });
+          const updatedContact = res.data;
+          const updatedList = listContact.map(contact => (contact._id === updatedContact._id) ? updatedContact : contact);
+          setListContact(updatedList);
         } catch (err) {
-            console.log(err);
+          console.log(err);
         }
-    };
-
+      };
+    
+      const contactListRows = useMemo(() => {
+        
+        return listContact.map((curlelm,index) => (
+          <tr key={curlelm._id}>
+            <th>{index+1}</th>
+            <th>{curlelm.name}</th>
+            <td>{curlelm.mobile}</td>
+            <td>
+              <button className="btn btn-success btn-sm mr-2" data-toggle="modal" data-target="#edit-contact-modal" onClick={() => editContact(curlelm._id)}>Edit</button>
+              <button className="btn btn-danger btn-sm" onClick={() => deletContact(curlelm._id)}>Delete</button>
+            </td>
+          </tr>
+        ));
+      }, [listContact]);
 
 
 
@@ -199,31 +210,26 @@ function App() {
            
 
 
-            <h2 className="mt-5 mb-3">Contact List</h2>
-            <table className="table " >
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Mobile Number</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="contact-list">
-                    {listContact.map((curlelm) => (
-
-                        <tr key={curlelm._id}>
-                            <th>{i++}</th>
-                            <th>{curlelm.name}</th>
-                            <td>{curlelm.mobile}</td>
-                            <td>
-                                <button className="btn btn-success btn-sm mr-2" data-toggle="modal" data-target="#edit-contact-modal" onClick={() => editContact(curlelm._id)}>Edit</button>
-                                <button className="btn btn-danger btn-sm" onClick={() => { deletContact(curlelm._id) }}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            {isLoading ? (
+      <Loader /> // Display the loader while loading
+    ) : (
+      // Your contact list or other content
+      <div>
+        {/* Contact list rendering */}
+        <h2 className="mt-5 mb-3">Contact List</h2>
+        <table className="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Mobile Number</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="contact-list">{contactListRows}</tbody>
+        </table>
+      </div>
+    )}
         </div>
 
 
